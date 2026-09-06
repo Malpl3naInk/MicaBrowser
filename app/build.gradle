@@ -9,10 +9,12 @@ android {
     defaultConfig {
         applicationId "com.moling.micabrowser"
         minSdk 26
-        targetSdk 33
+        // CrossWalk 23 opens /dev/ashmem directly, blocked for modern target SDKs.
+        targetSdk (providers.gradleProperty('legacyCrosswalk').getOrElse('false').toBoolean() ? 28 : 33)
         versionCode 5
         versionName "Rel-AL 0.5"
         resConfigs 'en','cn'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
     }
 
@@ -57,6 +59,10 @@ dependencies {
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
     // CrossWalk
     implementation fileTree(dir: 'libs', include: ['xwalk_core_library-23.53.589.4.aar'])
+    // CrossWalk calls junit.framework.Assert at runtime; Wear OS 4 does not ship it.
+    implementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     // Room
     def room_version = "2.5.2"
     implementation "androidx.room:room-runtime:$room_version"
